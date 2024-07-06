@@ -2,8 +2,10 @@ package com.jdvelez.LiterAlura_AluraChallenge.model;
 
 import jakarta.persistence.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "libros")
@@ -13,7 +15,7 @@ public class Libro {
     private Long id;
     private Integer libroNum;
     private String titulo;
-    private List<String> lenguaje;
+    private List<Lenguaje> lenguaje;
     private Integer numDescargas;
 
     @JoinTable(
@@ -29,7 +31,14 @@ public class Libro {
     public Libro(Optional<DatosLibro> datos) {
         this.libroNum = datos.get().libroId();
         this.titulo = datos.get().titulo();
-        this.lenguaje = datos.get().lenguaje();
+        // Intenta comparar el dato de lenguaje obtenido de la API con el enum Lenguaje
+        try {
+            this.lenguaje = datos.get().lenguaje().stream().map(Lenguaje::fromString).toList();
+        }catch (IllegalArgumentException e){
+            //En caso de que no lo encuentre muestra el mensaje de la excepción y lo guarda como DESCONOCIDO
+            System.out.println(e.getMessage());
+            this.lenguaje = Collections.singletonList(Lenguaje.DESCONOCIDO);
+        }
         this.numDescargas = datos.get().numDescargas();
     }
 
@@ -57,11 +66,11 @@ public class Libro {
         this.titulo = titulo;
     }
 
-    public List<String> getLenguaje() {
+    public List<Lenguaje> getLenguaje() {
         return lenguaje;
     }
 
-    public void setLenguaje(List<String> lenguaje) {
+    public void setLenguaje(List<Lenguaje> lenguaje) {
         this.lenguaje = lenguaje;
     }
 
@@ -83,11 +92,13 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "Libro{" +
-                "libroId=" + libroNum +
-                ", titulo='" + titulo + '\'' +
-                ", lenguaje='" + lenguaje.stream() + '\'' +
-                ", numDescargas=" + numDescargas +
-                '}';
+        return "\n----------------------Libro-----------------------" +
+                "\nTitulo: " + this.titulo +
+                "\nAutores: " + this.autores.stream()
+                .map(Autor::getNombre).collect(Collectors.joining(" - ")) +
+                "\nLenguajes: " + this.lenguaje.stream()
+                .map(Lenguaje::getLengEspanol).collect(Collectors.joining(" - ")) +
+                "\nDescargas Totales: " + this.numDescargas +
+                "\n--------------------------------------------------\n";
     }
 }

@@ -3,6 +3,7 @@ package com.jdvelez.LiterAlura_AluraChallenge.model;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "autores")
@@ -14,7 +15,7 @@ public class Autor {
     private Integer fechaNacimiento;
     private Integer fechaFallecimiento;
 
-    @ManyToMany(mappedBy = "autores")
+    @ManyToMany(mappedBy = "autores", fetch = FetchType.EAGER)
     private List<Libro> libros;
 
     public Autor(){}
@@ -63,5 +64,15 @@ public class Autor {
 
     public void setLibros(List<Libro> libros) {
         this.libros = libros;
+    }
+
+    @Override
+    public String toString() {
+        return "\n----------------------Autor-----------------------" +
+                "\nNombre: " + this.nombre +
+                "\nFecha Nacimiento: " + this.fechaNacimiento +
+                "\nFecha Fallecimiento: " + this.fechaFallecimiento +
+                "\nLibros: " + "[" + this.libros.stream().map(Libro::getTitulo).collect(Collectors.joining(" - ")) + "]"+
+                "\n--------------------------------------------------\n";
     }
 }
