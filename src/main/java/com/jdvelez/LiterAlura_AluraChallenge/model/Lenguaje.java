@@ -1,6 +1,8 @@
 package com.jdvelez.LiterAlura_AluraChallenge.model;
 
 public enum Lenguaje {
+    // Se añaden los idiomas mas comunes en la API
+    // Solo aquellos que tienen mas de 50 libros registrados
     CHINO("zh","Chino"),
     DANES("da","Danés"),
     HOLANDES("nl","Holandés"),
@@ -14,7 +16,7 @@ public enum Lenguaje {
     ITALIANO("it","italiano"),
     LATIN("la","Latín"),
     PORTUGUES("pt","Portugués"),
-    ESPAÑOL("es","Español"),
+    ESPANOL("es","Español"),
     SUECO("sv","Sueco"),
     TAGALO("tl","Tagalo");
 
@@ -26,6 +28,11 @@ public enum Lenguaje {
         this.lengEspanol = lengEspanol;
     }
 
+    public String getLengEspanol() {
+        return lengEspanol;
+    }
+
+    //Convierte un string de la API como "en" a "INGLES"
     public static Lenguaje fromString(String leng){
         for(Lenguaje lenguaje : Lenguaje.values()){
             if (lenguaje.lengGutendex.equalsIgnoreCase(leng)){
@@ -35,6 +42,7 @@ public enum Lenguaje {
         throw new IllegalArgumentException("Ningún lenguaje encontrado: " + leng);
     }
 
+    // Convierte un string ingresado en español como "inglés" a "INGLES"
     public static Lenguaje fromEspanol(String leng){
         for(Lenguaje lenguaje : Lenguaje.values()){
             if (lenguaje.lengEspanol.equalsIgnoreCase(leng)){

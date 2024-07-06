@@ -1,19 +1,31 @@
 package com.jdvelez.LiterAlura_AluraChallenge.main;
 
 import com.jdvelez.LiterAlura_AluraChallenge.model.*;
+import com.jdvelez.LiterAlura_AluraChallenge.repository.AutorRepository;
+import com.jdvelez.LiterAlura_AluraChallenge.repository.LibroRepository;
 import com.jdvelez.LiterAlura_AluraChallenge.service.ConsumoAPI;
 import com.jdvelez.LiterAlura_AluraChallenge.service.ConvierteDatos;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+
 public class Principal {
-    private Scanner leer = new Scanner(System.in);
-    private ConsumoAPI consumoApi = new ConsumoAPI();
+    private final Scanner leer = new Scanner(System.in);
+    private final ConsumoAPI consumoApi = new ConsumoAPI();
     private final String URL_BASE = "http://gutendex.com/books/?search=";
-    private ConvierteDatos conversor = new ConvierteDatos();
+    private final ConvierteDatos conversor = new ConvierteDatos();
+    private final LibroRepository libroRepos;
+    private final AutorRepository autorRepos;
+
+    public Principal(LibroRepository libroRepos, AutorRepository autorRepos) {
+        this.libroRepos = libroRepos;
+        this.autorRepos = autorRepos;
+    }
+
 
     public void Menu(){
         var eleccion = -1;
@@ -63,13 +75,30 @@ public class Principal {
                     "\nAutores: " + libroObtenido.get().autores().stream()
                             .map(DatosAutor::nombreAutor).collect(Collectors.joining(" - ")) +
                     "\nLenguajes: " + libroObtenido.get().lenguaje().stream()
-                            .map(e -> Lenguaje.fromString(e).name()).collect(Collectors.joining(" - ")) +
+                            .map(l -> Lenguaje.fromString(l).getLengEspanol()).collect(Collectors.joining(" - ")) +
                     "\nDescargas Totales: " + libroObtenido.get().numDescargas() +
                     "\n--------------------------------------------------\n");
+
+            Libro datosLibro = new Libro(libroObtenido);
+            if(libroRepos.encontrarPorNombre(datosLibro.getTitulo()) == null) {
+                List<Autor> autorLibro = libroObtenido.get().autores().stream().map(Autor::new).toList();
+                List<Autor> autores = new ArrayList<>();
+                for (Autor autor : autorLibro) {
+                    Autor autorExistente = autorRepos.encontrarPorNombre(autor.getNombre());
+                    if (autorExistente != null) {
+                        autores.add(autorExistente);
+                    } else {
+                        autores.add(autor);
+                        autorRepos.save((autor));
+                    }
+                }
+                datosLibro.setAutores(autores);
+                libroRepos.save(datosLibro);
+            }else{
+                System.out.println("El libro ya esta almacenado");
+            }
         }else {
             System.out.println("Libro no encontrado");
         }
     }
-
-
 }
